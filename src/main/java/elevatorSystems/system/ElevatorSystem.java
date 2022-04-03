@@ -3,9 +3,16 @@ package elevatorSystems.system;
 import elevatorSystems.Elevator.Elevator;
 import elevatorSystems.Elevator.ElevatorStatus;
 
+import javax.swing.*;
+import javax.swing.event.MouseInputListener;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class ElevatorSystem {
+public class ElevatorSystem{
     private final int numOfElevators;
     private ArrayList<Elevator> elevators;
     private ArrayList<ArrayList<Request>> requests;
@@ -24,14 +31,19 @@ public class ElevatorSystem {
 
         this.toDo = new ArrayList<Request>();
 
+
+
         for (int i = 0; i < this.numOfElevators; i++){
             elevators.add(new Elevator(this.lowestFloor,this.highestFloor));
             requests.add(new ArrayList<Request>());
         }
     }
 
+    public ArrayList<Elevator> getElevators() {
+        return elevators;
+    }
 
-    public void pickup(int floor,int direction){
+    public void pickup(int floor, int direction){
         Direction d = Direction.STOP;
         if (direction > 0) d = Direction.UP;
         if (direction < 0) d = Direction.DOWN;
@@ -88,8 +100,8 @@ public class ElevatorSystem {
 
             if (r.getStatus() == RequestStatus.PICKUP){
                 e.setDestination(r.getFloor());
-                if (e.getCurrentFloor() - r.getFloor() < 0) e.move(Direction.UP);
-                if (e.getCurrentFloor() - r.getFloor() > 0) e.move(Direction.DOWN);
+                if (e.getCurrentFloor() < r.getFloor()) e.move(Direction.UP);
+                if (e.getCurrentFloor() > r.getFloor()) e.move(Direction.DOWN);
             }
 //            if (r.getStatus() == RequestStatus.ORDER){     //w wersji po dodaniu destynacji
 //                if (e.getCurrentFloor() - r.getDestination() < 0) e.move(Direction.UP);
@@ -97,8 +109,7 @@ public class ElevatorSystem {
 //            }
 
         }
-
-
+//        System.out.println(Arrays.toString(status().get(0)));
     }
 
     public ArrayList<int[]> status(){

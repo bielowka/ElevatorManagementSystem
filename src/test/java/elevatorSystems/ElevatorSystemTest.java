@@ -32,4 +32,5 @@ public class ElevatorSystemTest {
         test1.step();
         assertTrue(Arrays.equals(test1.status().get(0), new int[]{0, 1, 1}));
     }
+
 }
