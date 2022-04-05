@@ -1,16 +1,9 @@
 package elevatorSystems.system;
 
 import elevatorSystems.Elevator.Elevator;
-import elevatorSystems.Elevator.ElevatorStatus;
 
-import javax.swing.*;
-import javax.swing.event.MouseInputListener;
-import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Observer;
 
 public class ElevatorSystem{
     private final int numOfElevators;
@@ -19,6 +12,8 @@ public class ElevatorSystem{
     private ArrayList<Request> toDo;
     private final int lowestFloor;
     private final int highestFloor;
+
+    private Observer observer;
 
 
     public ElevatorSystem(int numOfElevators, int lowestFloor, int highestFloor) {
@@ -39,6 +34,10 @@ public class ElevatorSystem{
         }
     }
 
+    public void setObserver(Observer observer) {
+        this.observer = observer;
+    }
+
     public ArrayList<Elevator> getElevators() {
         return elevators;
     }
@@ -47,7 +46,11 @@ public class ElevatorSystem{
         Direction d = Direction.STOP;
         if (direction > 0) d = Direction.UP;
         if (direction < 0) d = Direction.DOWN;
-        toDo.add(new Request(floor,d));
+        toDo.add(new Request(floor,d,observer));
+    }
+
+    public void deliver(int floor, int destination){
+        toDo.add(new Request(floor,destination,observer));
     }
 
 
@@ -60,8 +63,9 @@ public class ElevatorSystem{
         //przydziala wszystko z toDo
         //obejmuje algorytm przydziału
         //oblicza minimum po czasie oczekiwania przewidywanym na ten moment i tam przydziela
-        //musi zmieniać statusy
+        //poprawia rowniez kolejnosc bo sa ORDERED
         if (toDo.isEmpty()) return;
+        //  WAŻNE - w trybie ORDER muszą być przydzielone windzie na danym floor
 
         //wersja trywialna
         for (Request r : toDo) {
@@ -73,20 +77,42 @@ public class ElevatorSystem{
     public void step(){
         for (int i = 0; i < elevators.size(); i++) {
             Elevator e = elevators.get(i);
-
+            Request r;
             if (requests.get(i).isEmpty()) {
                 e.move(Direction.STOP);
             }
             else {
-                Request r = requests.get(i).get(0);
+                r = requests.get(i).get(0);
 
-                if (e.getCurrentFloor() == r.getFloor() && r.getStatus() == RequestStatus.PICKUP) {
-                    r.ordered(0); // tutaj powinno się ustawić faktyczną destynacje
-                    requests.get(i).remove(0); // w wersji po dodaniu destynacji nie będzie usuwany
-                    e.move(Direction.STOP);
+                if (r.getStatus() == RequestStatus.PICKUP){
+                    e.setDestination(r.getFloor());
+                }
+                else if (r.getStatus() == RequestStatus.ORDER){
+                    e.setDestination(r.getDestination());
                 }
 
-//            if (e.getCurrentFloor() == requests.get(i).get(0).getDestination()) //wykonano, usunąć dany request, sprawdzic nastepny w kolejnosci
+                if (e.getCurrentFloor() < e.getDestination()) e.move(Direction.UP);
+                if (e.getCurrentFloor() > e.getDestination()) e.move(Direction.DOWN);
+
+
+                r = requests.get(i).get(0);
+
+                while (r != null && (e.getCurrentFloor() == r.getDestination() && r.getStatus() == RequestStatus.ORDER)) {
+                    r.completed();
+                    requests.get(i).remove(0);
+                    e.move(Direction.STOP);
+                    if (requests.get(i).isEmpty()) r = null;
+                    else r = requests.get(i).get(0);
+                }
+
+                while (r != null && (e.getCurrentFloor() == r.getFloor() && r.getStatus() == RequestStatus.PICKUP)) {
+                    r.ordered();
+                    requests.get(i).remove(0);
+                    e.move(Direction.STOP);
+                    if (requests.get(i).isEmpty()) r = null;
+                    else r = requests.get(i).get(0);
+                }
+
             }
 
             if (!toDo.isEmpty()) assignment();
@@ -96,20 +122,10 @@ public class ElevatorSystem{
                 continue;
             }
 
-            Request r = requests.get(i).get(0);
 
-            if (r.getStatus() == RequestStatus.PICKUP){
-                e.setDestination(r.getFloor());
-                if (e.getCurrentFloor() < r.getFloor()) e.move(Direction.UP);
-                if (e.getCurrentFloor() > r.getFloor()) e.move(Direction.DOWN);
-            }
-//            if (r.getStatus() == RequestStatus.ORDER){     //w wersji po dodaniu destynacji
-//                if (e.getCurrentFloor() - r.getDestination() < 0) e.move(Direction.UP);
-//                if (e.getCurrentFloor() - r.getDestination() > 0) e.move(Direction.DOWN);
-//            }
 
         }
-//        System.out.println(Arrays.toString(status().get(0)));
+
     }
 
     public ArrayList<int[]> status(){

@@ -15,7 +15,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui = new Gui(this,numOfElevators,lowestFloor,highestFloor);
         gui.initialize(this.getContentPane());
-        this.setSize(numOfElevators*50+200,(highestFloor-lowestFloor+1)*50+100);
+        this.setSize(numOfElevators*50+270,(highestFloor-lowestFloor+1)*50+100);
         this.setVisible(true);
 
     }

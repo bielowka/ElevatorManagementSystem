@@ -8,8 +8,6 @@ import java.awt.*;
 
 import static elevatorSystems.system.Direction.*;
 
-
-
 public class Elevator {
 
     private int currentFloor;

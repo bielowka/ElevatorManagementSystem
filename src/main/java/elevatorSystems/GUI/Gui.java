@@ -11,13 +11,14 @@ import java.awt.event.ActionListener;
 import java.beans.JavaBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Observer;
 
 import static java.awt.BorderLayout.*;
 
 public class Gui extends JPanel implements ActionListener, ChangeListener{
     private Timer timer;
     private int iterNum = 0;
-    private int initDelay = 1000;
+    private int initDelay = 700;
     private ElevatorSystem system;
     private JFrame frame;
 
@@ -28,6 +29,16 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
     private final int lowestFloor;
     private final int highestFloor;
 
+    private final Integer[] floors;
+
+    private JPanel choice;
+    JComboBox<Integer> destinationChoice;
+    private JLabel where;
+
+    private PickingUpObserver observer;
+
+    private ArrayList<Integer> orders;
+
     public Gui(JFrame frame,int numOfElevators,int lowestFloor,int highestFloor){
         this.numOfElevators = numOfElevators;
         this.lowestFloor = lowestFloor;
@@ -37,14 +48,24 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
         timer.stop();
 
         this.scrollsList = new ArrayList<JScrollBar>();
+
+        this.floors = new Integer[highestFloor-lowestFloor+1];
+        for (int i = lowestFloor; i <= highestFloor; i++){
+            floors[highestFloor - i] = i;
+        }
+
+        this.observer = new PickingUpObserver(this);
+
+        this.orders = new ArrayList<>();
     }
 
 
     public void initialize(Container container){
         container.setLayout(new BorderLayout());
-        container.setSize(new Dimension(numOfElevators*50+200,(highestFloor-lowestFloor+1)*50+100));
+        container.setSize(new Dimension(numOfElevators*50+270,(highestFloor-lowestFloor+1)*50+100));
 
         system = new ElevatorSystem(numOfElevators,lowestFloor,highestFloor);
+        system.setObserver((Observer) observer);
 
         int size = (int)( (float)((highestFloor-lowestFloor+1)*50 - 32) / (float) (highestFloor-lowestFloor+1) + 0.5);
 
@@ -81,6 +102,21 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
         scrolls.setLayout(new BorderLayout());
         container.add(scrolls);
 
+        destinationChoice = new JComboBox<Integer>(this.floors);
+        destinationChoice.setVisible(true);
+        destinationChoice.addActionListener(this);
+        destinationChoice.setActionCommand("choice");
+        destinationChoice.setSize(75,200);
+
+        where = new JLabel("");
+
+        choice = new JPanel();
+        choice.add(where);
+        choice.add(destinationChoice);
+        choice.setBounds(numOfElevators*50+50,0,50,200);
+        choice.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        choice.setVisible(false);
+        container.add(choice);
 
         timer.start();
     }
@@ -91,6 +127,13 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
             int[] e = status.get(i);
             scrollsList.get(i).setValue(highestFloor*50 - e[1]*50);
         }
+    }
+
+    public void destinationChoosing(int floor){
+        timer.stop();
+        orders.add(floor);
+        where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
+        choice.setVisible(true);
     }
 
 
@@ -104,7 +147,6 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
         }
         else {
             String command = e.getActionCommand();
-            System.out.println(command);
             if (e.getSource() instanceof JButton){
                 if (command.contains("UP")){
                     int floor = Integer.parseInt(command.replace("UP",""));
@@ -114,7 +156,19 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
                     int floor = Integer.parseInt(command.replace("DOWN",""));
                     system.pickup(floor,-1);
                 }
-                timer.start();
+            }
+            else if (command.equals("choice")){
+                if (!orders.isEmpty()){
+                    where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
+                    int f = orders.get(0);
+                    int d = (Integer) destinationChoice.getSelectedItem();
+                    system.deliver(f,d);
+                    orders.remove(0);
+                }
+                if (orders.isEmpty()){
+                    choice.setVisible(false);
+                    timer.start();
+                }
             }
         }
     }
