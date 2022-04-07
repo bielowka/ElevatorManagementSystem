@@ -2,11 +2,7 @@ package elevatorSystems.Elevator;
 
 import elevatorSystems.system.Direction;
 
-import javax.swing.*;
-
-import java.awt.*;
-
-import static elevatorSystems.system.Direction.*;
+import static elevatorSystems.system.Direction.STOP;
 
 public class Elevator {
 

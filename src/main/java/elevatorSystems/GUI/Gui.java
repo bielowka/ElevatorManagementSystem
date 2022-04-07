@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observer;
 
-import static java.awt.BorderLayout.*;
-
 public class Gui extends JPanel implements ActionListener, ChangeListener{
     private Timer timer;
     private int initDelay = 1000;
@@ -31,7 +29,7 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
     private final Integer[] floors;
 
     private JPanel choice;
-    JComboBox<Integer> destinationChoice;
+    private JComboBox<Integer> destinationChoice;
     private JLabel where;
 
     private PickingUpObserver observer;
@@ -117,6 +115,11 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
         choice.setVisible(false);
         container.add(choice);
 
+        JButton getInfo = new JButton("Print information");
+        getInfo.setActionCommand("getinfo");
+        getInfo.addActionListener(this);
+        container.add(getInfo,BorderLayout.SOUTH);
+
         timer.start();
     }
 
@@ -147,11 +150,14 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
             if (e.getSource() instanceof JButton){
                 if (command.contains("UP")){
                     int floor = Integer.parseInt(command.replace("UP",""));
-                    system.pickup(floor,1);
+                    if (floor != highestFloor) system.pickup(floor,1);
                 }
                 else if (command.contains("DOWN")){
                     int floor = Integer.parseInt(command.replace("DOWN",""));
-                    system.pickup(floor,-1);
+                    if (floor != lowestFloor) system.pickup(floor,-1);
+                }
+                else if (command.equals("getinfo")){
+                    System.out.println(system);
                 }
             }
             else if (command.equals("choice")){
@@ -160,7 +166,7 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
                     where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
                     int f = orders.get(0);
                     int d = (Integer) destinationChoice.getSelectedItem();
-                    system.deliver(f,d); //people who requested elevator on the same floor do not know which one precisely, so they enter elevators randomly
+                    system.deliver(f,d); //people who requested an elevator on the same floor do not know which one precisely, so they enter elevators randomly
                     orders.remove(0);
                 }
                 if (orders.isEmpty()){

@@ -1,6 +1,5 @@
 package elevatorSystems.GUI;
 
-import elevatorSystems.system.Direction;
 import elevatorSystems.system.Request;
 
 import java.util.Observable;

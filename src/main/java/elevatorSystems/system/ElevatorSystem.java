@@ -2,8 +2,6 @@ package elevatorSystems.system;
 
 import elevatorSystems.Elevator.Elevator;
 
-import javax.naming.InitialContext;
-import java.awt.desktop.SystemEventListener;
 import java.util.ArrayList;
 import java.util.Observer;
 

@@ -45,8 +45,6 @@ public class Request extends Observable {
         return direction;
     }
 
-    public int getWaitingTime(){return waitingTime;}
-
     public int getDestination(){
         return destination;
     }
@@ -66,6 +64,10 @@ public class Request extends Observable {
 
     public void addWaitingTime(){
         this.waitingTime = this.waitingTime + 1;
+    }
+
+    public int getWaitingTime() { //for quality analytics purpose
+        return waitingTime;
     }
 
     @Override
