@@ -34,6 +34,10 @@ public class ElevatorSystem{
         }
     }
 
+    public ArrayList<ArrayList<Request>> getRequests() {
+        return requests;
+    }
+
     public void setObserver(Observer observer) {
         this.observer = observer;
     }
@@ -129,6 +133,16 @@ public class ElevatorSystem{
                     t = abs(r.getDestination() - e.getCurrentFloor());
                 }
                 else {
+                    if (r.getStatus() == RequestStatus.ORDER && e.getStatus() != r.getDirection()){//prioritize people inside, then person entering
+                        boolean isOrdered = false;
+                        for (Request o : l) {
+                            if (o.getStatus() == RequestStatus.ORDER) isOrdered = true;
+                        }
+                        if (!isOrdered) {
+                            p = 0;
+                            t = abs(r.getDestination() - e.getCurrentFloor());
+                        }
+                    }
                     if (e.getStatus() == r.getDirection() || e.getStatus() == Direction.STOP){
                         if ((r.getDestination() - e.getCurrentFloor())*r.getDirection().toInt() >= 0){
                             if ((l.get(0).getDestination() - r.getDestination())*r.getDirection().toInt() >= 0){
