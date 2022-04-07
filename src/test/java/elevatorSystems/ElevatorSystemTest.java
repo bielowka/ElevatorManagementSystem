@@ -1,8 +1,11 @@
 package elevatorSystems;
+import elevatorSystems.GUI.PickingUpObserver;
 import elevatorSystems.system.ElevatorSystem;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Observable;
+import java.util.Observer;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,6 +14,12 @@ public class ElevatorSystemTest {
     @Test
     public void basicsTest(){
         ElevatorSystem test1 = new ElevatorSystem(1, 0, 10);
+        test1.setObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+
+            }
+        });
         test1.pickup(5,1);
         for (int i = 0; i < 5; i++) test1.step();
         assertTrue(Arrays.equals(test1.status().get(0), new int[]{0, 5, 5}));
