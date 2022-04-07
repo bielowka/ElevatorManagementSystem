@@ -5,6 +5,7 @@ import elevatorSystems.GUI.PickingUpObserver;
 import java.util.Observable;
 import java.util.Observer;
 
+import static elevatorSystems.system.Direction.*;
 import static elevatorSystems.system.RequestStatus.*;
 
 public class Request extends Observable {
@@ -18,6 +19,7 @@ public class Request extends Observable {
 
     public Request(int floor, Direction direction, Observer observer) {
         this.floor = floor;
+        this.destination = floor;
         this.direction = direction;
         this.status = PICKUP;
         this.waitingTime = 0;
@@ -30,6 +32,8 @@ public class Request extends Observable {
         this.waitingTime = 0;
         this.observer = observer;
         this.destination = destination;
+        if ((this.destination - this.floor) > 0) this.direction = UP;
+        else this.direction = DOWN;
     }
 
 
@@ -40,6 +44,8 @@ public class Request extends Observable {
     public Direction getDirection() {
         return direction;
     }
+
+    public int getWaitingTime(){return waitingTime;}
 
     public int getDestination(){
         return destination;
@@ -58,13 +64,12 @@ public class Request extends Observable {
         changeData();
     }
 
-    public void completed(){
-        this.status = COMPLETE;
+    public void addWaitingTime(){
+        this.waitingTime = this.waitingTime + 1;
     }
-
 
     @Override
     public String toString() {
-        return "{" + "f=" + floor + "d=" + destination + "s=" + status + '}';
+        return '{'+"d=" + destination + " s=" + status + " w:" + this.waitingTime + '}';
     }
 }

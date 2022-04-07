@@ -21,7 +21,7 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        Main main = new Main(16,-2,8);
+        Main main = new Main(4,-2,8);
         main.gui.initialize(main.getContentPane());
     }
 }

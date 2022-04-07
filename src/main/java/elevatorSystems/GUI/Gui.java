@@ -17,8 +17,7 @@ import static java.awt.BorderLayout.*;
 
 public class Gui extends JPanel implements ActionListener, ChangeListener{
     private Timer timer;
-    private int iterNum = 0;
-    private int initDelay = 700;
+    private int initDelay = 1000;
     private ElevatorSystem system;
     private JFrame frame;
 
@@ -132,16 +131,14 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
     public void destinationChoosing(int floor){
         timer.stop();
         orders.add(floor);
-        where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
         choice.setVisible(true);
+        where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
     }
 
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(timer)) {
-            iterNum++;
-            frame.setTitle(Integer.toString(iterNum));
             system.step();
             this.refresh();
         }
@@ -158,11 +155,12 @@ public class Gui extends JPanel implements ActionListener, ChangeListener{
                 }
             }
             else if (command.equals("choice")){
-                if (!orders.isEmpty()){
+                if(!orders.isEmpty()){
+                    timer.stop();
                     where.setText("Ordering on: " + String.valueOf(orders.get(0)) + "f");
                     int f = orders.get(0);
                     int d = (Integer) destinationChoice.getSelectedItem();
-                    system.deliver(f,d);
+                    system.deliver(f,d); //people who requested elevator on the same floor do not know which one precisely, so they enter elevators randomly
                     orders.remove(0);
                 }
                 if (orders.isEmpty()){
