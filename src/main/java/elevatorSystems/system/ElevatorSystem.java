@@ -133,6 +133,14 @@ public class ElevatorSystem{
                     t = abs(r.getDestination() - e.getCurrentFloor());
                 }
                 else {
+                    if (e.getStatus() == r.getDirection() || e.getStatus() == Direction.STOP){
+                        if ((r.getDestination() - e.getCurrentFloor())*r.getDirection().toInt() >= 0){
+                            if ((l.get(0).getDestination() - r.getDestination())*r.getDirection().toInt() >= 0){
+                                p = 0;
+                                t = abs(r.getDestination() - e.getCurrentFloor());
+                            }
+                        }
+                    }
                     if (r.getStatus() == RequestStatus.ORDER && e.getStatus() != r.getDirection()){//prioritize people inside, then person entering
                         boolean isOrdered = false;
                         for (Request o : l) {
@@ -141,14 +149,6 @@ public class ElevatorSystem{
                         if (!isOrdered) {
                             p = 0;
                             t = abs(r.getDestination() - e.getCurrentFloor());
-                        }
-                    }
-                    if (e.getStatus() == r.getDirection() || e.getStatus() == Direction.STOP){
-                        if ((r.getDestination() - e.getCurrentFloor())*r.getDirection().toInt() >= 0){
-                            if ((l.get(0).getDestination() - r.getDestination())*r.getDirection().toInt() >= 0){
-                                p = 0;
-                                t = abs(r.getDestination() - e.getCurrentFloor());
-                            }
                         }
                     }
                     if (p == -1) {
